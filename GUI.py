@@ -62,9 +62,15 @@ class CheckersGUI:
     def click(self, event):
         col = event.x // SQUARE_SIZE
         row = event.y // SQUARE_SIZE
+
+        # If no piece is currently selected, try to select one.
         if not self.game.selected:
-            self.game.select(row, col)
+            # If selection fails, check if there are no moves available.
+            if not self.game.select(row, col):
+                if self.game.no_moves_available(self.game.turn):
+                    self.game.winner = 'white' if self.game.turn == 'black' else 'black'
         else:
+            # A piece is already selected; try to move it.
             if (row, col) in self.game.valid_moves:
                 start_row, start_col = self.game.selected.row, self.game.selected.col
                 start_coords = (start_col * SQUARE_SIZE + SQUARE_SIZE // 2,
@@ -89,26 +95,38 @@ class CheckersGUI:
                 self.canvas.delete(moving_piece)
                 self.game._move(row, col)
             else:
+                # Deselect and try selecting a new piece.
                 self.game.selected = None
                 self.game.valid_moves = {}
                 self.game.select(row, col)
+
+        # Redraw the board.
         self.draw_board()
+
+        # After drawing, check if the current side has no moves left.
+        if self.game.no_moves_available(self.game.turn):
+            self.game.winner = 'white' if self.game.turn == 'black' else 'black'
+
+        # Draw the winner text if there's a winner.
         self.draw_winner_text()
+
+    def draw_winner_text(self):
         if self.game.winner:
             text = f"{self.game.winner.capitalize()} wins!"
             x = WIDTH // 2
             y = HEIGHT // 2
-            # Draw outline: four offset copies in black.
+            # Draw outline by drawing text four times with slight offsets in black.
             for dx, dy in [(-2, -2), (-2, 2), (2, -2), (2, 2)]:
                 self.canvas.create_text(x + dx, y + dy,
                                         text=text,
                                         font=("Arial", 32, "bold"),
                                         fill="black")
-            # Draw main text in gold on top.
+            # Draw the main text in gold.
             self.canvas.create_text(x, y,
                                     text=text,
                                     font=("Arial", 32, "bold"),
                                     fill="gold")
+
 
     def run(self):
         self.canvas.bind("<Button-1>", self.click)
