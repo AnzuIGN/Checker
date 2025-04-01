@@ -139,6 +139,3 @@ class Board:
                     r += dr
                     c += dc
         return moves
-
-
-
