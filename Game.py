@@ -3,33 +3,31 @@ from Board import Board
 class Game:
     def __init__(self):
         self.board = Board()
-        self.turn = 'white'  # White starts first
+        self.turn = 'white'  # White starts first.
         self.selected = None
         self.valid_moves = {}
         self.winner = None
-
 
     def no_moves_available(self, color):
         for r in range(8):
             for c in range(8):
                 piece = self.board.get_piece(r, c)
                 if piece and piece.color == color:
-                    valid = self.board.get_valid_moves(piece)
-                    if valid:  # If there's at least one valid move
+                    if self.board.get_valid_moves(piece):
                         return False
         return True
 
-
     def check_winner(self):
-        if self.no_moves_available(self.turn):
-            return 'white' if self.turn == 'black' else 'black'
-        # Fallback: check by piece count.
+        # First, check by piece count.
         white_count = sum(1 for row in self.board.board for piece in row if piece and piece.color == 'white')
         black_count = sum(1 for row in self.board.board for piece in row if piece and piece.color == 'black')
         if white_count == 0:
             return 'black'
         elif black_count == 0:
             return 'white'
+        # Optionally, check if the current side has no moves available.
+        if self.no_moves_available(self.turn):
+            return 'white' if self.turn == 'black' else 'black'
         return None
 
     def select(self, row, col):
@@ -44,7 +42,6 @@ class Game:
         if piece is not None and piece.color == self.turn:
             self.selected = piece
             self.valid_moves = self.board.get_valid_moves(piece)
-            # (Optional: enforce mandatory capture by filtering moves if needed.)
             return True
         return False
 
@@ -63,5 +60,5 @@ class Game:
         self.selected = None
         self.valid_moves = {}
         self.turn = 'white' if self.turn == 'black' else 'black'
-        # After switching turn, check if the new side has any moves.
+        # After switching turn, update the winner if one side has no pieces.
         self.winner = self.check_winner()
