@@ -1,3 +1,4 @@
+# GUI.py
 import tkinter as tk
 from Game import Game
 from Constants import ROWS, COLS, SQUARE_SIZE
@@ -69,18 +70,18 @@ class CheckersGUI:
                 start_coords = (start_col * SQUARE_SIZE + SQUARE_SIZE // 2,
                                 start_row * SQUARE_SIZE + SQUARE_SIZE // 2)
                 end_coords = (col * SQUARE_SIZE + SQUARE_SIZE // 2,
-                              row * SQUARE_SIZE + SQUARE_SIZE // 2)
+                            row * SQUARE_SIZE + SQUARE_SIZE // 2)
                 if self.game.selected.color == "black":
                     self.canvas.create_oval(start_coords[0]-30, start_coords[1]-30,
                                             start_coords[0]+30, start_coords[1]+30,
                                             fill="white", outline="")
                     moving_piece = self.canvas.create_oval(start_coords[0]-26, start_coords[1]-26,
-                                                           start_coords[0]+26, start_coords[1]+26,
-                                                           fill="black", outline="black", width=2)
+                                                        start_coords[0]+26, start_coords[1]+26,
+                                                        fill="black", outline="black", width=2)
                 else:
                     moving_piece = self.canvas.create_oval(start_coords[0]-30, start_coords[1]-30,
-                                                           start_coords[0]+30, start_coords[1]+30,
-                                                           fill="white", outline="black", width=2)
+                                                        start_coords[0]+30, start_coords[1]+30,
+                                                        fill="white", outline="black", width=2)
                 if self.game.selected.queen:
                     self.canvas.create_text(start_coords[0], start_coords[1],
                                             text="👑", font=("Arial", 30, "bold"), fill="gold")
@@ -91,14 +92,23 @@ class CheckersGUI:
                 self.game.selected = None
                 self.game.valid_moves = {}
                 self.game.select(row, col)
+        self.draw_board()
+        self.draw_winner_text()
         if self.game.winner:
             text = f"{self.game.winner.capitalize()} wins!"
             x = WIDTH // 2
             y = HEIGHT // 2
+            # Draw outline: four offset copies in black.
             for dx, dy in [(-2, -2), (-2, 2), (2, -2), (2, 2)]:
-                self.canvas.create_text(x + dx, y + dy, text=text, font=("Arial", 32, "bold"), fill="black")
-                self.canvas.create_text(x, y, text=text, font=("Arial", 32, "bold"), fill="gold")
-
+                self.canvas.create_text(x + dx, y + dy,
+                                        text=text,
+                                        font=("Arial", 32, "bold"),
+                                        fill="black")
+            # Draw main text in gold on top.
+            self.canvas.create_text(x, y,
+                                    text=text,
+                                    font=("Arial", 32, "bold"),
+                                    fill="gold")
 
     def run(self):
         self.canvas.bind("<Button-1>", self.click)
