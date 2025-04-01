@@ -18,17 +18,19 @@ class Game:
         return True
 
     def check_winner(self):
-        # First, check by piece count.
+        # 1) Check if one side has no pieces
         white_count = sum(1 for row in self.board.board for piece in row if piece and piece.color == 'white')
         black_count = sum(1 for row in self.board.board for piece in row if piece and piece.color == 'black')
         if white_count == 0:
             return 'black'
-        elif black_count == 0:
+        if black_count == 0:
             return 'white'
-        # Optionally, check if the current side has no moves available.
+        # 2) Check if the current side has no moves
         if self.no_moves_available(self.turn):
             return 'white' if self.turn == 'black' else 'black'
+
         return None
+
 
     def select(self, row, col):
         piece = self.board.get_piece(row, col)
@@ -52,13 +54,18 @@ class Game:
             if skipped:
                 for piece in skipped:
                     self.board.remove([piece])
+                # Immediately check if that removal caused one side to run out of pieces:
+                self.winner = self.check_winner()
+
             self.change_turn()
             return True
         return False
 
+
     def change_turn(self):
         self.selected = None
         self.valid_moves = {}
+        # Switch turn
         self.turn = 'white' if self.turn == 'black' else 'black'
-        # After switching turn, update the winner if one side has no pieces.
+        # Immediately check if the new side has no moves or no pieces
         self.winner = self.check_winner()
