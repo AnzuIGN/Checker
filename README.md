@@ -1,2 +1,2 @@
-# Checker
-the game
+# Checkers
+Run the GUI.py to play
